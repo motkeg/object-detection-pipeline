@@ -1,0 +1,66 @@
+# Configuration which enables bitbucket-pipelines tool (CI tool):
+#      CI: Continues Integration - run automatic tests on each push or pull request (it is configurable)
+#
+# This template configuration runs pytest on both python 2.7.15 and 3.6.8 on each pull request creation.
+
+
+######################################################
+# Only use spaces to indent your .yml configuration. #
+######################################################
+
+# Basic concept on how to configure the bitbucket pipelines yaml:
+#     https://confluence.atlassian.com/bitbucket/configure-bitbucket-pipelines-yml-792298910.html
+#     * Each "step" load a clean docker
+#     * Use "image" to choose python image.
+#     * Use "definitions" and anchors to avoid duplication, see setup-test anchor example below.
+#     * Use "artifacts" to defines files to be share to later steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment:
+#     https://hub.docker.com/_/python
+# ------
+# Online validator for the config:
+#     https://bitbucket-pipelines.prod.public.atl-paas.net/validator
+# ------
+# Images both public and private:
+#     https://confluence.atlassian.com/bitbucket/use-docker-images-as-build-environments-792298897.html
+# ------
+# Anchors guide:
+#     https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html
+# ------
+# Test reporting:
+#     https://confluence.atlassian.com/bitbucket/test-reporting-in-pipelines-939708543.html
+# ------
+# Branching model:
+#     https://confluence.atlassian.com/bitbucket/branch-workflows-856697482.html
+# ------
+# Run only on Pull Requests:
+#     https://confluence.atlassian.com/bitbucket/configure-bitbucket-pipelines-yml-792298910.html#Configurebitbucket-pipelines.yml-ci_pull-requestspull-requests
+# ------
+# Run in parallel:
+#     Be aware that the total number of build minutes is not change if you make the steps parallel, it is just quicker.
+#     https://confluence.atlassian.com/bitbucket/parallel-steps-946606807.html
+# ------
+
+definitions:
+    steps:
+        - step: &setup-test
+            caches:
+                - pip
+            script:
+                - python --version
+                - pip install -r pipeline_requirements.txt
+                - python -m pytest --junitxml=./test-reports/junit.xml .
+options:
+    max-time: 4 # maximum minutes to run the the tests
+pipelines:
+    pull-requests:
+        "**":
+            - parallel:
+                - step:
+                    <<: *setup-test
+                    name: Setup repo environment and Test - Python 3
+                    image: python:3.6.8
+                - step:
+                    <<: *setup-test
+                    name: Setup repo environment and Test - Python 2
+                    image: python:2.7.15
