@@ -118,6 +118,7 @@ venv.bak/
 # use 'local' directory anywhere you want to store files only locally.
 **/local
 models
+data
 
 ############
 # Packages #
