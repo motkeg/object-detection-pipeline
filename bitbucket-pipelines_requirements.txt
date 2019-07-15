@@ -1,0 +1,10 @@
+# python packages requirements for bitbucket pipelines
+#
+# Most of the packages should be the same as in requirements.txt, expect for special cases:
+# 1) The default dockers, which run the tests on cloud, as no gpu.
+#       So if you are using tensorflow-gpu in your project requirements,
+#       you should install the tensorflow non-gpu version for the pipelines.
+$
+# 2) Installing private repo (git+https://....) is not supported right now in bitbucket-pipelines due to credential issues.
+#       The way to solve it is to clone the desired repo and pip install it locally
+#       Read more on how do it on bitbucket-pipelines.yml

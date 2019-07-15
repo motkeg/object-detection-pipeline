@@ -1,12 +1,19 @@
-# Configuration which enables bitbucket-pipelines tool (CI tool):
+################
+# General Info #
+################
+
+# This configuration file (must be with this name) defines bitbucket-pipelines tool behavior (CI tool):
 #      CI: Continues Integration - run automatic tests on each push or pull request (it is configurable)
-#
-# This template configuration runs pytest on both python 2.7.15 and 3.6.8 on each pull request creation.
+# --
+# This template configuration runs tests (using pytest) on both python 2.7.15 and 3.6.8 on each pull request creation.
+# --
+# You should enable Bitbucket Pipeline in your repo by going to Settings/PIPELINES/Settings and click on "Enable"
+# --
+# Only use spaces to indent your .yml configuration.
 
-
-######################################################
-# Only use spaces to indent your .yml configuration. #
-######################################################
+################
+# Useful links #
+################
 
 # Basic concept on how to configure the bitbucket pipelines yaml:
 #     https://confluence.atlassian.com/bitbucket/configure-bitbucket-pipelines-yml-792298910.html
@@ -40,26 +47,43 @@
 #     Be aware that the total number of build minutes is not change if you make the steps parallel, it is just quicker.
 #     https://confluence.atlassian.com/bitbucket/parallel-steps-946606807.html
 # ------
+# Update repository:
+#     https://confluence.atlassian.com/bitbucket/push-back-to-your-repository-962352710.html
+# ------
+# Enable access to submodules and private repositories:
+#     https://community.atlassian.com/t5/Bitbucket-questions/Bitbucket-Pipelines-and-git-submodules/qaq-p/130479
+# ------
 
 definitions:
     steps:
-        - step: &setup-test
+        - step: &setup-test  # step id
             caches:
                 - pip
-            script:
+            script:  # shell commands to run
                 - python --version
-                - pip install -r pipeline_requirements.txt
-                - python -m pytest --junitxml=./test-reports/junit.xml .
+                - pip install -r bitbucket-pipelines_requirements.txt
+                - python -m pytest --junitxml=./test-reports/junit.xml ./tests
+
+                # You can not pip install private repo directly (git+https://... is not working). In order to do so
+                # you need to create ssh key for your current repo and add it to the repository you want to install, see:
+                #   https://community.atlassian.com/t5/Bitbucket-questions/Bitbucket-Pipelines-and-git-submodules/qaq-p/130479
+                # If the repo you want to install is not yours ask for the repository admin to add your key.
+                #
+                # Than you can clone it and pip install the cloned directory, example using infra:
+                # - git clone --single-branch --branch v0.1.2 git@bitbucket.org:razor-tech/infra.git
+                # - pip install ./infra
+
 options:
-    max-time: 4 # maximum minutes to run the the tests
+    max-time: 4 # maximum minutes to run the tests
+
 pipelines:
-    pull-requests:
-        "**":
-            - parallel:
+    pull-requests:  # run when pull request is created (or updated)
+        "**":  # on all branches
+            - parallel: # steps bellow will be run in parallel
                 - step:
-                    <<: *setup-test
-                    name: Setup repo environment and Test - Python 3
-                    image: python:3.6.8
+                    <<: *setup-test  # concatenate the setup-test step from the "definitions" section
+                    name: Setup repo environment and Test - Python 3  # name to show on the pipelines web page
+                    image: python:3.6.8  # docker to use (from Docker Hub)
                 - step:
                     <<: *setup-test
                     name: Setup repo environment and Test - Python 2
