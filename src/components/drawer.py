@@ -2,9 +2,9 @@
 import cv2,time
 
 
-def drew(detectionDict):
+def draw(detectionDict):
 
-    print ("Start Drewing...")
+    print ("Start Drawing...")
     while True:
         while True:
             val = detectionDict.get()
@@ -12,7 +12,7 @@ def drew(detectionDict):
 
                 frame ,cnts = dets
                 if int(key)%50==0:
-                    print("drew frame ", key)
+                    print("draw frame ", key)
                 for c in cnts:
                     # if the contour is too small, ignore it
                     if cv2.contourArea(c) < 600 or cv2.contourArea(c) > 100000:
@@ -27,7 +27,7 @@ def drew(detectionDict):
                 cv2.putText(frame,str(time.ctime(time.time()))+" f:{}".format(key) ,(10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
                 # show the frame
-                cv2.imshow("FrameDitector", frame)
+                cv2.imshow("FrameDetector", frame)
 
                 if cv2.waitKey(10) & 0xFF == 27:
                     break
