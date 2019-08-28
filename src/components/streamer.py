@@ -22,7 +22,10 @@ def read(framesDict,path=0):
 
             if frame is None:
                 break
-
+            # skip the first 170 frames because the light is on
+            if i < 170:
+                i+=1
+                break
 
             if firstFrame is None:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

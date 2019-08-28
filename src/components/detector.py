@@ -6,11 +6,12 @@ import time
 
 NUM_OF_FRAMES_TO_STACK = 50
 COUNTER = 0
+LR = None
 first_frames = list()
 
 def get_contours_from_MOG(bg_model,frame):
 
-    fgmask = bg_model.apply(frame)
+    fgmask = bg_model.apply(frame,learningRate=LR)
     threshold_frame = cv2.dilate(fgmask, None, iterations=2)
     cnts = cv2.findContours(threshold_frame, cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
@@ -22,7 +23,7 @@ def get_contours_from_simple_subtraction(first_frame,frame):
     # compute the absolute difference between the current frame and
     # first frame
     frameDelta = cv2.absdiff(first_frame, frame)
-    threshold_frame = cv2.threshold(frameDelta, 127, 255, cv2.THRESH_BINARY)[1]
+    threshold_frame = cv2.threshold(frameDelta, 30, 255, cv2.THRESH_BINARY)[1]
     threshold_frame = cv2.dilate(threshold_frame, None, iterations=2)
     cnts = cv2.findContours(threshold_frame, cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
@@ -34,8 +35,8 @@ def detect(frameDict,detectionsDict):
 
     print ("Strat detecting...")
     firstFrame = None
-    fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False)
-    global COUNTER
+    fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
+    global COUNTER,LR
     while True:
 
         while True:
@@ -51,6 +52,10 @@ def detect(frameDict,detectionsDict):
 
                 if int(key)%50==0:
                     print("detect frame ", key)
+                    LR = 1
+                else:
+                    LR = 0
+
 
 
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -59,12 +64,15 @@ def detect(frameDict,detectionsDict):
                 simple_tresh_frame , simple_cnts = get_contours_from_simple_subtraction(firstFrame,gray)
                 mog_tresh_frame , mog_cnts =  get_contours_from_MOG(fgbg,gray)
 
-                cv2.imshow("Simple Delta frame",simple_tresh_frame)
-                cv2.imshow("MOG Delta frame", mog_tresh_frame)
+                tresh_stack = np.hstack((simple_tresh_frame,mog_tresh_frame))
+
+                # cv2.imshow("Simple Delta frame",simple_tresh_frame)
+                cv2.imshow("Simple Delte | MOG Delta", cv2.resize(tresh_stack,(1920,768)))
+                cv2.imshow("First Frame",cv2.resize(firstFrame,(960,768)))
                 if cv2.waitKey(10) & 0xFF == 27:
                     break
 
                 # cnts = imutils.grab_contours(mog_cnts)
                 if not detectionsDict.full():
-                    detectionsDict.put({key: (frame,simple_cnts[0])})
+                    detectionsDict.put({key: (frame,mog_cnts[0])})
 
