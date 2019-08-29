@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from src.components.preprocessor import preprocess_frame
+
 FIRST_FRAME_IDX = 170
 NUM_OF_FRAMES_TO_STACK = 50
 
@@ -23,11 +25,10 @@ def read(frames_dict, path=0):
                 break
 
             if first_frame is None:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                gray = cv2.GaussianBlur(gray, (21, 21), 0)
+                processed_frame = preprocess_frame(frame)
 
                 if COUNTER < NUM_OF_FRAMES_TO_STACK:
-                    first_frames.append(gray)
+                    first_frames.append(processed_frame)
                     COUNTER += 1
                     continue
 

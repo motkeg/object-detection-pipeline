@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from src.components.preprocessor import preprocess_frame
+
 NUM_OF_FRAMES_FOR_MOG = 50
 NUM_OF_FRAMES_TO_STACK = 50
 COUNTER = 0
@@ -53,11 +55,10 @@ def detect(frameDict, detectionsDict):
             if int(key) > 50:
                 learning_rate = 0
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            gray = cv2.GaussianBlur(gray, (21, 21), 0)
+            processed_frame = preprocess_frame(frame)
 
-            simple_tresh_frame, simple_cnts = get_contours_from_simple_subtraction(firstFrame, gray)
-            mog_tresh_frame, mog_cnts = get_contours_from_MOG(fgbg, gray, learning_rate)
+            simple_tresh_frame, simple_cnts = get_contours_from_simple_subtraction(firstFrame, processed_frame)
+            mog_tresh_frame, mog_cnts = get_contours_from_MOG(fgbg, processed_frame, learning_rate)
 
             tresh_stack = np.hstack((simple_tresh_frame, mog_tresh_frame))
 
