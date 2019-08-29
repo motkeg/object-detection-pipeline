@@ -1,1 +1,2 @@
-# python packages requirements:
+numpy==1.17.1
+opencv-python==4.0.0.21

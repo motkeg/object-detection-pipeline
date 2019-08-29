@@ -1,33 +1,28 @@
 import cv2
 import numpy as np
-import time
 
-
-
+FIRST_FRAME_IDX = 170
 NUM_OF_FRAMES_TO_STACK = 50
+
 COUNTER = 0
 first_frames = list()
 
 
-
-def read(framesDict,path=0):
+def read(frames_dict, path=0):
     cap = cv2.VideoCapture(path)
-    firstFrame,i = None, 0
+    cap.set(cv2.CAP_PROP_POS_FRAMES, FIRST_FRAME_IDX)
+    first_frame, i = None, 0
     print("Start reading video...")
     global COUNTER
-    while (True):
+    while True:
         # Capture frame-by-frame
-        while not framesDict.full():
+        while not frames_dict.full():
             ret, frame = cap.read()
 
             if frame is None:
                 break
-            # skip the first 170 frames because the light is on
-            if i < 170:
-                i+=1
-                break
 
-            if firstFrame is None:
+            if first_frame is None:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
@@ -37,20 +32,16 @@ def read(framesDict,path=0):
                     continue
 
                 elif COUNTER == NUM_OF_FRAMES_TO_STACK:
-                    firstFrame = np.median(np.array(first_frames), axis=0).astype(np.uint8)
-                    framesDict.put({'first': firstFrame})
-                # framesDict['first'] = firstFrame
+                    first_frame = np.median(np.array(first_frames), axis=0).astype(np.uint8)
+                    frames_dict.put({'first': first_frame})
+                # frames_dict['first'] = firstFrame
 
-
-
-
-            framesDict.put({i: frame})
-            i+=1
-            if i%50 ==0:
-                print ("read frame ",i)
-        while not framesDict.empty():
+            frames_dict.put({i: frame})
+            i += 1
+            if i % 50 == 0:
+                print("read frame ", i)
+        while not frames_dict.empty():
             pass
-
 
     # When everything done, release the capture
     cap.release()
