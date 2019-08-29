@@ -50,6 +50,7 @@ def pipeline_seq(path):
 if __name__ == '__main__':
     # path = '/hdd/mosashi-vmd/videos/20190701_20190701155751_20190701155919_155751.mp4'
     # path = "/hdd/mosashi-vmd/videos/20190701_20190701155755_20190701155922_155754.mp4"
-    path = "/hdd/musashi_vmd/data/20190827/10.0.0.100_8000_33_7B83BDD312F945A69D0591D3A00981F4_/20190827_20190827145530_20190827145721_145531.mp4"
+    # path = "/hdd/musashi_vmd/data/20190827/10.0.0.100_8000_33_7B83BDD312F945A69D0591D3A00981F4_/20190827_20190827145530_20190827145721_145531.mp4"
+    path = "/hdd/musashi_vmd/data/Initial_videos/20190701_20190701155751_20190701155919_155751.mp4"
     # pipline_seq(path)
     pipeline(path)
