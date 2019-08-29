@@ -1,6 +1,6 @@
 import cv2
 
-DEFAULT_GAUSSIAN_KERNEL_SIZE = 21
+DEFAULT_GAUSSIAN_KERNEL_SIZE = 5
 
 
 def preprocess_frame(frame, gaussian_kernel_size=DEFAULT_GAUSSIAN_KERNEL_SIZE):
