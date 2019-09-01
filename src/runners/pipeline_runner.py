@@ -1,7 +1,11 @@
+
+
+
+import cv2
+import numpy as np
 import time
 from multiprocessing import Process, Manager
 
-import cv2
 
 from src.components.detector import detect
 from src.components.drawer import draw
@@ -13,7 +17,7 @@ def kill(p_array):
         p.terminate()
 
 
-def pipeline(path):
+def pipeline(path, transform_matrix=None):
     with Manager() as manager:
 
         # FRAMES = manager.dict()
@@ -24,7 +28,7 @@ def pipeline(path):
 
         processes = [Process(target=read, args=(FRAMES, path)),
                      Process(target=detect, args=(FRAMES, DETECTIONS)),
-                     Process(target=draw, args=(DETECTIONS,))]
+                     Process(target=draw, args=(DETECTIONS,transform_matrix))]
 
         for p in processes:
             p.start()
@@ -48,5 +52,8 @@ def pipeline_seq(path):
 
 
 if __name__ == '__main__':
-    path = "/hdd/musashi_vmd/data/Initial_videos/20190701_20190701155751_20190701155919_155751.mp4"
-    pipeline(path)
+
+    video_path = "/hdd/musashi/data/20190827/10.0.0.100_8000_33_7B83BDD312F945A69D0591D3A00981F4_/20190827_20190827145530_20190827145721_145531.mp4"
+    matrix_path = "/hdd/musashi/matrix/20190827_20190827145530_20190827145721_145531.mp4.npy"
+    trns_mat = np.load(matrix_path)
+    pipeline(video_path,trns_mat)
