@@ -53,7 +53,7 @@ def pipeline_seq(path):
 
 if __name__ == '__main__':
 
-    video_path = "/hdd/musashi/data/20190827/10.0.0.100_8000_33_7B83BDD312F945A69D0591D3A00981F4_/20190827_20190827145530_20190827145721_145531.mp4"
-    matrix_path = "/hdd/musashi/matrix/20190827_20190827145530_20190827145721_145531.mp4.npy"
+    video_path = "/hdd/musashi/data/20190827/10.0.0.100_8000_34_40486966D1B34F8FAE61D679EE9912A5_/20190827_20190827145533_20190827145724_145534.mp4"
+    matrix_path = "/hdd/musashi/matrix/20190827_20190827145533_20190827145724_145534.mp4.npy"
     trns_mat = np.load(matrix_path)
     pipeline(video_path,trns_mat)

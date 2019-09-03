@@ -4,7 +4,7 @@ import numpy as np
 from src.bb2geo.simple_transform import print_frame_loc_on_map
 
 
-def load_matrix_test(path_to_mat,path_to_map):
+def load_matrix_test(path_to_mat,path_to_map,):
     '''
      we want to drew the following:  [(879, 359), (1017, 360), (1148, 362)]
      on map
