@@ -102,6 +102,13 @@ class CameraLightDetection(object):
 
     def track_light_change(self, img, stream_id, timestamp):
 
+        """
+        :return:
+        he function will calculate mahalanobis distance between light intensity of
+        frame and the previous 'STARTING_FRAMES'. if it is grater than 'STD_DEV' and the area of the abs diff
+        between the last two frames is grater than 'AREA_THR' it will record a status change (set flag to timestamp)
+        """
+
         if self.flags[stream_id]:
             return self.is_synced()
 
