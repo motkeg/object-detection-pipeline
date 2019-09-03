@@ -11,6 +11,9 @@ AREA_THR = 0.1
 
 
 class CameraLightDetection(object):
+    """
+    Synchronization for multiple streams based on light switching
+    """
 
     def __init__(self, number_of_streams):
         self.frame_count = np.zeros(number_of_streams)
@@ -37,8 +40,8 @@ class CameraLightDetection(object):
         :param frame: cv2 frame [H,W,C]
         :return: R+G+B for all pixels divided by 3 then by the total number of pixels
         """
-        axis_0, axis_1, _ = frame.shape
-        num_of_pixels = axis_0 * axis_1
+        height, width, _ = frame.shape
+        num_of_pixels = height * width
         light_intensity = frame.sum(axis=0).sum()
         light_intensity /= (3 * num_of_pixels)
         return light_intensity
@@ -70,27 +73,6 @@ class CameraLightDetection(object):
         mean_vector = np.array(intensities_vector).mean()
         return 1 if np.array(light_intensity).mean() > mean_vector else -1
 
-    """
-    For debugging purposes only.
-    """
-    @staticmethod
-    def create_diff_mask(frames_list):
-        """
-        :return: will display the last two frames, and their differences in order to try and see which objects
-                             moved and affected lighting.
-        """
-        from PIL import Image
-        for _, val in enumerate(frames_list):
-            diff = cv2.absdiff(val[1], val[2])
-            mask = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-            imask = mask > 10
-            canvas = np.zeros_like(val[2], np.uint8)
-            canvas[imask] = val[2][imask]
-            Image.fromarray(canvas).show()
-            Image.fromarray(val[1]).show()
-            Image.fromarray(val[2]).show()
-            pass
-
     @staticmethod
     def light_area_effect(frames):
         """
@@ -106,7 +88,7 @@ class CameraLightDetection(object):
 
     def is_synced(self):
         """
-        :return: 0: Didn't detect light switch in atleast one camera
+        :return: 0: Didn't detect light switch in one or more cameras
                 -1: Out of sync.
                  1: Synced.
         """
@@ -144,10 +126,29 @@ class CameraLightDetection(object):
         self.light_deque[stream_id].append(light_intensity_list)
         return self.is_synced()
 
+    """
+    For debugging purposes only.
+    """
+    @staticmethod
+    def create_diff_mask(frames_list):
+        """
+        :return: will display the last two frames, and their differences in order to try and see which objects
+                             moved and affected lighting.
+        """
+        from PIL import Image
+        for _, val in enumerate(frames_list):
+            diff = cv2.absdiff(val[1], val[2])
+            mask = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+            imask = mask > 10
+            canvas = np.zeros_like(val[2], np.uint8)
+            canvas[imask] = val[2][imask]
+            Image.fromarray(canvas).show()
+            Image.fromarray(val[1]).show()
+            Image.fromarray(val[2]).show()
+            pass
+
 
 if __name__ == '__main__':
-    test = CameraLightDetection(2)
-    print("Debug")
     pass
 
 
