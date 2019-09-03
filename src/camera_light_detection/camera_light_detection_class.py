@@ -7,6 +7,7 @@ from scipy.spatial.distance import mahalanobis
 STARTING_FRAMES = 10
 STD_DEV = 145
 SYNC_THRESHOLD = 0.5
+AREA_THR = 0.1
 
 
 class CameraLightDetection(object):
@@ -14,7 +15,9 @@ class CameraLightDetection(object):
     def __init__(self, number_of_streams):
         self.frame_count = np.zeros(number_of_streams)
         self.light_deque = [deque(STARTING_FRAMES * [0], maxlen=STARTING_FRAMES) for _ in range(number_of_streams)]
-        self.frames = self.last_frames = self.flags = [None for _ in range(number_of_streams)]
+        self.frames = [None for _ in range(number_of_streams)]
+        self.last_frames = [None for _ in range(number_of_streams)]
+        self.flags = [None for _ in range(number_of_streams)]
 
     @staticmethod
     def calculate_light_from_colorspace(frame):
@@ -61,11 +64,11 @@ class CameraLightDetection(object):
 
         :param light_intensity: the current light intensity measured
         :param intensities_vector: the last frames light intensities
-        :return: will return postive number if the current light intensity is bigger than average,
+        :return: will return positive number if the current light intensity is bigger than average,
                  (lighting -> 1) (occlusion -> -1)
         """
-        mean_vector = intensities_vector.mean()
-        return 1 if light_intensity.mean() > mean_vector else -1
+        mean_vector = np.array(intensities_vector).mean()
+        return 1 if np.array(light_intensity).mean() > mean_vector else -1
 
     """
     For debugging purposes only.
@@ -120,6 +123,7 @@ class CameraLightDetection(object):
         if self.flags[stream_id]:
             return self.is_synced()
 
+        self.frame_count[stream_id] += 1
         light_intensity_list = [self.calculate_light_from_colorspace(frame=img),
                                 self.calculate_light_algerian_way(frame=img)]
         self.last_frames[stream_id] = self.frames[stream_id]
@@ -134,12 +138,17 @@ class CameraLightDetection(object):
             # 3. record the area of the absolute difference between the last two frames
             area = self.light_area_effect([self.last_frames[stream_id], img])
 
-            if distance >= STD_DEV and direction > 0 and area > 0.1:
+            if distance >= STD_DEV and direction > 0 and area > AREA_THR:
                 self.flags[stream_id] = timestamp
 
         self.light_deque[stream_id].append(light_intensity_list)
         return self.is_synced()
 
+
+if __name__ == '__main__':
+    test = CameraLightDetection(2)
+    print("Debug")
+    pass
 
 
 
